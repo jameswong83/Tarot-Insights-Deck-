@@ -101,6 +101,7 @@
     .card .meta{font-size:12px; color:var(--muted)}
     .tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
     .tag{border:1px solid rgba(212,175,55,.35); color:#f7f1de; font-size:11px; padding:4px 8px; border-radius:999px}
+    .hl{color:var(--gold)}
     .actions{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap}
 
     /* Multi draw */
@@ -315,8 +316,9 @@
     const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
     const sample = arr => arr[r(0,arr.length-1)];
     const rot = () => `${r(-2,2)}deg`;
-    const templ = (t, ctx) => t.replace(/\{\{\s*brand\s*\}\}/gi, ctx.brand||'your brand')
-                               .replace(/\{\{\s*audience\s*\}\}/gi, ctx.audience||'your audience');
+    const templ = (t, ctx) => t
+      .replace(/\{\{\s*brand\s*\}\}/gi, ctx.brand?`<span class="hl">${ctx.brand}</span>`:'your brand')
+      .replace(/\{\{\s*audience\s*\}\}/gi, ctx.audience?`<span class="hl">${ctx.audience}</span>`:'your audience');
 
     function filterDeck(){
       const v = catSel.value;
