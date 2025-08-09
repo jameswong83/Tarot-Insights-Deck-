@@ -325,6 +325,7 @@
 
     function dealOne(){
       const pool = filterDeck();
+      if (!pool.length){ toast('No cards in this category.'); return; }
       const card = sample(pool);
       state.history.push(card);
       renderCard(card);
@@ -332,6 +333,7 @@
 
     function dealThree(){
       const pool = [...filterDeck()];
+      if (!pool.length){ toast('No cards in this category.'); return; }
       const picks=[];
       while (picks.length<3 && pool.length){
         const idx=r(0,pool.length-1); picks.push(pool.splice(idx,1)[0]);
