@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insight Tarot — Consumer Insight Card Deck</title>
+  <meta name="description" content="A lightweight, GitHub Pages–ready web app that helps marketers generate thought‑provoking questions to uncover consumer insights." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1f1e;          /* deep green-black */
+      --bg-2:#0f2a29;        /* card table */
+      --ink:#e7f6f5;         /* ivory ink */
+      --muted:#a8c4c1;       /* soft teal */
+      --gold:#d4af37;        /* antique gold */
+      --gold-2:#b8942a;      /* darker gold */
+      --shadow:rgba(0,0,0,.35);
+      --good:#5ce0aa;
+      --warn:#ffd166;
+      --bad:#ff7b7b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1200px 600px at 20% -20%, #153534 0%, var(--bg) 60%),
+               radial-gradient(800px 500px at 120% 20%, #13302f 0%, var(--bg) 50%);
+      color:var(--ink); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      display:flex; flex-direction:column;
+    }
+    header{
+      padding:18px 20px; border-bottom:1px solid rgba(212,175,55,.25);
+      display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-content:space-between;
+      backdrop-filter:saturate(1.2) blur(4px);
+      background:linear-gradient(0deg, rgba(12,28,27,.6), rgba(12,28,27,.6));
+      position:sticky; top:0; z-index:100;
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{
+      width:36px; height:36px; border-radius:50%;
+      background:
+        radial-gradient(12px 12px at 70% 30%, #fff6d6 0%, #ffe9a1 80%, transparent 81%),
+        conic-gradient(from 0deg, var(--gold) 0 90deg, transparent 90 180deg, var(--gold-2) 180 270deg, transparent 270 360deg);
+      box-shadow:0 0 0 2px rgba(212,175,55,.2), 0 10px 20px var(--shadow), inset 0 0 14px rgba(212,175,55,.6);
+    }
+    h1{font-family:"Playfair Display", Georgia, serif; margin:0; font-weight:800; letter-spacing:.3px; font-size:20px}
+    .sub{font-size:12px; color:var(--muted)}
+
+    .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .group{display:flex; gap:10px; flex-wrap:wrap}
+
+    select, input[type="text"], textarea{
+      background:#0a2322; color:var(--ink); border:1px solid rgba(212,175,55,.25);
+      padding:10px 12px; border-radius:12px; outline:none; min-width:160px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    input::placeholder, textarea::placeholder{color:#8bb1af}
+    textarea{min-width:260px; min-height:40px; resize:vertical}
+
+    .btn{border:1px solid rgba(212,175,55,.4); color:var(--ink); background:linear-gradient(180deg, rgba(212,175,55,.25), rgba(212,175,55,.08));
+      padding:10px 14px; border-radius:14px; font-weight:600; cursor:pointer; transition:.2s ease transform, .2s ease box-shadow, .2s ease opacity;
+      box-shadow:0 6px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.35)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{border-color:rgba(168,196,193,.45); background:linear-gradient(180deg, rgba(168,196,193,.2), rgba(168,196,193,.06))}
+    .btn.ghost{background:transparent; border-color:rgba(168,196,193,.3)}
+
+    main{display:grid; grid-template-columns:300px 1fr; gap:16px; padding:16px; flex:1;}
+    @media (max-width: 980px){ main{grid-template-columns:1fr} }
+
+    /* Sidebar */
+    .panel{background:linear-gradient(180deg, rgba(13,33,32,.9), rgba(10,28,27,.9)); border:1px solid rgba(212,175,55,.2);
+      border-radius:18px; padding:16px; box-shadow:0 10px 30px var(--shadow)}
+    .panel h2{margin:0 0 8px; font-family:"Playfair Display"; font-weight:800; font-size:18px}
+    .panel p{margin:6px 0; color:var(--muted); font-size:13px}
+    .kv{display:grid; grid-template-columns:1fr; gap:10px}
+    .kv label{font-size:12px; color:var(--muted)}
+
+    /* Table felt */
+    .table{background:radial-gradient(1200px 600px at -20% 0%, #183d3b 0%, var(--bg-2) 60%);
+      border:1px dashed rgba(212,175,55,.25); border-radius:22px; padding:18px; min-height:380px; position:relative; overflow:hidden}
+
+    /* Cards */
+    .stack{display:grid; place-items:center; min-height:340px;}
+    .card{
+      width:min(560px, 90%); min-height:280px; background:linear-gradient(180deg, #0e2625, #102b2a);
+      border-radius:18px; border:1px solid rgba(212,175,55,.3);
+      box-shadow:
+        0 30px 50px rgba(0,0,0,.35),
+        inset 0 0 0 2px rgba(255,255,255,.02),
+        0 0 0 2px rgba(212,175,55,.12);
+      position:relative; padding:18px 18px 22px;
+      transform:rotate(var(--rot, -1deg));
+      transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s;
+    }
+    .card:hover{transform:translateY(-2px) rotate(var(--rot, -1deg)); box-shadow:0 40px 70px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.02), 0 0 0 2px rgba(212,175,55,.18)}
+    .card .cat{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:800}
+    .card h3{font-family:"Playfair Display"; font-size:28px; line-height:1.15; margin:8px 0 10px}
+    .card .meta{font-size:12px; color:var(--muted)}
+    .tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+    .tag{border:1px solid rgba(212,175,55,.35); color:#f7f1de; font-size:11px; padding:4px 8px; border-radius:999px}
+    .actions{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap}
+
+    /* Multi draw */
+    .hand{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:12px}
+    .mini{min-height:200px;}
+
+    /* Footer */
+    footer{padding:12px 16px; color:var(--muted); font-size:12px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    code.kbd{border:1px solid rgba(168,196,193,.35); padding:2px 6px; border-radius:6px; font-size:11px; color:#cde8e6; background:#0a2322}
+
+    /* Modal */
+    dialog{border:none; border-radius:16px; padding:0; background:linear-gradient(180deg, #0e2625, #102b2a); color:var(--ink); width:min(680px, 92vw);}
+    .modal-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid rgba(212,175,55,.2)}
+    .modal-body{padding:16px}
+
+    a{color:var(--gold)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand" aria-label="App title">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Insight Tarot</h1>
+        <div class="sub">A deck of thought‑provoking prompts for marketers</div>
+      </div>
+    </div>
+    <div class="controls" role="toolbar" aria-label="Deck controls">
+      <div class="group">
+        <select id="category" aria-label="Filter by category">
+          <option value="all">All categories</option>
+        </select>
+        <select id="drawMode" aria-label="Draw mode">
+          <option value="single">Draw 1</option>
+          <option value="triple">Draw 3</option>
+        </select>
+        <button class="btn" id="btnDraw" title="Space">🔮 Draw</button>
+        <button class="btn secondary" id="btnShuffle" title="S">🔁 Shuffle</button>
+        <button class="btn ghost" id="btnWhy" title="7">7 Whys</button>
+      </div>
+      <div class="group">
+        <input id="brand" type="text" placeholder="Brand (e.g., Colgate)" aria-label="Brand context" />
+        <input id="audience" type="text" placeholder="Audience (e.g., Gen Z creators)" aria-label="Audience context" />
+        <button class="btn" id="btnSave" title="F">⭐ Save</button>
+        <button class="btn secondary" id="btnFavorites">📁 Favorites</button>
+        <button class="btn ghost" id="btnExport">⬇️ Export</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel" aria-label="Instructions and tips">
+      <h2>How to use</h2>
+      <p>Set your <strong>Brand</strong> and <strong>Audience</strong> (optional). Pick a category or keep it on <em>All</em>. Hit <strong>Draw</strong> to deal a card.
+      Use <code class="kbd">Space</code> to draw, <code class="kbd">S</code> to shuffle, <code class="kbd">F</code> to save, <code class="kbd">7</code> to open the 7 Whys coach.</p>
+      <div class="kv">
+        <label for="category">Category</label>
+        <label for="drawMode">Draw Mode</label>
+        <label for="brand">Brand</label>
+        <label for="audience">Audience</label>
+      </div>
+      <hr style="border:0; border-top:1px solid rgba(212,175,55,.2); margin:14px 0">
+      <h2>Pro tips</h2>
+      <ul style="margin:8px 0 0 16px; padding:0 0 0 6px; color:var(--muted)">
+        <li>Click <strong>⭐ Save</strong> to build a short‑list. Export to CSV for a brief.</li>
+        <li>Switch to <strong>Draw 3</strong> to triangulate an insight (tension + behavior + act).</li>
+        <li>Prompts auto‑weave your <em>brand</em> & <em>audience</em> into the question.</li>
+      </ul>
+    </aside>
+
+    <section class="table" aria-live="polite">
+      <div id="stack" class="stack"></div>
+      <div id="hand" class="hand" hidden></div>
+      <div class="actions">
+        <button class="btn" id="btnAnother">✨ Another</button>
+        <button class="btn secondary" id="btnClear">🧹 Clear</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> Insight Tarot. Built for curious marketers. Theme: <span style="color:var(--gold)">deep green & gold</span>.</div>
+    <div>Keyboard: <code class="kbd">Space</code> draw · <code class="kbd">S</code> shuffle · <code class="kbd">F</code> save · <code class="kbd">7</code> 7‑Whys</div>
+  </footer>
+
+  <!-- 7 Whys Coach Modal -->
+  <dialog id="whys">
+    <div class="modal-head">
+      <strong>7 Whys Coach</strong>
+      <button class="btn ghost" onclick="document.getElementById('whys').close()">✖</button>
+    </div>
+    <div class="modal-body">
+      <p>Pick a surface observation, then press <em>Why?</em> repeatedly. Stop when you reach a plausible root cause or a testable belief.</p>
+      <div style="display:grid; gap:10px">
+        <input id="whyTopic" placeholder="Observation (e.g., People abandon carts on mobile)" />
+        <div id="whyList" style="display:grid; gap:8px"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn" id="btnAskWhy">Why?</button>
+          <button class="btn secondary" id="btnResetWhy">Reset</button>
+          <button class="btn ghost" id="btnCopyWhy">Copy</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Favorites Modal -->
+  <dialog id="favs">
+    <div class="modal-head">
+      <strong>Saved Favorites</strong>
+      <button class="btn ghost" onclick="document.getElementById('favs').close()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div id="favList" style="display:grid; gap:10px"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const categories = [
+      { id:'tension', name:'Cultural Tension' },
+      { id:'behavior', name:'Behavioral Shift' },
+      { id:'trend', name:'Emerging Trend' },
+      { id:'counter', name:'Counterculture & Fringe' },
+      { id:'jtbd', name:'Jobs‑to‑be‑Done' },
+      { id:'ritual', name:'Moments & Rituals' },
+      { id:'barrier', name:'Barriers & Pain Points' },
+      { id:'identity', name:'Identity & Social Proof' },
+      { id:'algo', name:'Platform Algorithm Impact' },
+      { id:'attention', name:'Attention & Neuroscience' },
+      { id:'inclusion', name:'Inclusion & Representation' },
+      { id:'ideo', name:'IDEO Lenses (D/F/V)' },
+      { id:'humankind', name:'Leo Burnett — HumanKind' },
+      { id:'provocation', name:'Sharp Provocations' }
+    ];
+
+    // Prompt library — lightweight but varied. Placeholders {{brand}} {{audience}}.
+    const deck = [
+      // Cultural Tension
+      {cat:'tension', tags:['culture','tension'], q:'What is the unstated tension {{audience}} feel today between how they want to live and what the world (or category) makes easy? Where can {{brand}} side with people, not the category?'} ,
+      {cat:'tension', tags:['norms','status-quo'], q:'Which old norm in this category deserves to be challenged on behalf of {{audience}}? If {{brand}} challenged it, what new behavior might it unlock?'} ,
+      {cat:'tension', tags:['trade-off'], q:'What trade‑off do people believe they must accept (price vs. quality, convenience vs. care)? How can {{brand}} reframe or remove that trade‑off?'} ,
+
+      // Behavioral Shift
+      {cat:'behavior', tags:['habits'], q:'Which habit is gaining share of attention for {{audience}} (e.g., snacks over meals, shorts over TV)? How can {{brand}} be native to that habit instead of interrupting it?'} ,
+      {cat:'behavior', tags:['moments'], q:'In the last 12 months, what micro‑moment has moved earlier or later in the journey? How could {{brand}} win that moment with a tiny act?'} ,
+      {cat:'behavior', tags:['friction'], q:'Where do people silently workaround your product or comms? Treat every workaround as a design brief for {{brand}}.'} ,
+
+      // Emerging Trend
+      {cat:'trend', tags:['zeitgeist'], q:'Which adjacent category is reshaping expectations (e.g., instant refunds, creator collabs)? How might {{brand}} port that expectation into this category?'} ,
+      {cat:'trend', tags:['signals'], q:'List 3 weak signals from search, creators, or commerce. What single hypothesis about {{audience}} do they collectively suggest?'} ,
+      {cat:'trend', tags:['future'], q:'If a startup launched tomorrow to disrupt {{brand}}, what would they make unthinkably simple for {{audience}}?'} ,
+
+      // Counterculture & Fringe
+      {cat:'counter', tags:['edge'], q:'What fringe behavior looks weird today but solves a real problem for {{audience}}? How could {{brand}} legitimize it before competitors do?'} ,
+      {cat:'counter', tags:['subcultures'], q:'Which subculture has a ritual your category ignores? How can {{brand}} participate respectfully, adding value first?'} ,
+
+      // Jobs‑to‑be‑Done
+      {cat:'jtbd', tags:['progress'], q:'What job are people hiring {{brand}} for beyond the product spec (status, certainty, belonging)? How could you deliver that job faster?'} ,
+      {cat:'jtbd', tags:['switching'], q:'Why do people switch from the market leader to an underdog? What hiring criteria does {{brand}} need to win those moments?'} ,
+
+      // Rituals
+      {cat:'ritual', tags:['moment'], q:'Map a before‑during‑after ritual. Where could {{brand}} add a small ritual that people look forward to repeating?'} ,
+      {cat:'ritual', tags:['emotion'], q:'Which emotions bookend the use of {{brand}} (e.g., anxiety→relief)? How can comms amplify that emotional arc authentically?'} ,
+
+      // Barriers
+      {cat:'barrier', tags:['friction'], q:'If people aren’t buying, is it <cost>, <confidence>, or <complexity>? Pick one and design a single message or feature that removes it for {{audience}}.'} ,
+      {cat:'barrier', tags:['myth'], q:'What myth holds people back in this category? How could {{brand}} replace that myth with proof people can feel?'} ,
+
+      // Identity & Social Proof
+      {cat:'identity', tags:['signal'], q:'How does choosing {{brand}} help {{audience}} signal who they are to themselves or others? Design a moment that makes that signal visible.'} ,
+      {cat:'identity', tags:['community'], q:'Where do your best users help each other already? Turn that into a lightweight public artifact {{audience}} wants to join.'} ,
+
+      // Algorithms
+      {cat:'algo', tags:['distribution'], q:'If an algorithm was your media planner, what 3 inputs would it reward for {{brand}} (hook, watch time, save‑ability)? How will you design for them without losing truth?'} ,
+      {cat:'algo', tags:['discovery'], q:'How do {{audience}} actually discover in 2025 (search, social, chat)? What must change in your content’s first 3 seconds to be discovered there?'} ,
+
+      // Attention & Neuroscience
+      {cat:'attention', tags:['salience'], q:'What single distinctive cue (shape, sound, line) should {{brand}} repeat shamelessly across channels until it’s ownable?'} ,
+      {cat:'attention', tags:['memory'], q:'Which element of your message is memorable a week later? If none, what is the 7‑word line you want stuck in heads?'} ,
+
+      // Inclusion & Representation
+      {cat:'inclusion', tags:['representation'], q:'Who is missing from your comms yet uses the category? What respectful representation would feel like a gift to {{audience}}?'} ,
+      {cat:'inclusion', tags:['access'], q:'Where does the journey exclude people (language, ability, geography)? How can {{brand}} lower that barrier with design, not just messaging?'} ,
+
+      // IDEO — Desirability, Feasibility, Viability
+      {cat:'ideo', tags:['desirability'], q:'Desirability: If we shadowed {{audience}} for a day, where would they naturally reach for {{brand}} without a brief or ad? Build for that pull.'} ,
+      {cat:'ideo', tags:['feasibility'], q:'Feasibility: What’s the smallest working version of a new experience we could ship in 2 weeks to learn from real behavior?'} ,
+      {cat:'ideo', tags:['viability'], q:'Viability: What value exchange makes this idea self‑sustaining (money, time, status)? Where can we remove cost from the system?'},
+
+      // Leo Burnett — HumanKind
+      {cat:'humankind', tags:['acts'], q:'People > ads. What simple brand act could help {{audience}} do something they care about, even if no one sees the ad?'} ,
+      {cat:'humankind', tags:['purpose'], q:'What human problem (not brand problem) does this idea solve tomorrow morning? If none, sharpen the problem before the solution.'} ,
+
+      // Provocations / Wildcards
+      {cat:'provocation', tags:['reframe'], q:'If your brand disappeared, who would miss it and why? Build the next campaign only for those reasons.'} ,
+      {cat:'provocation', tags:['speed'], q:'If you had to launch in 72 hours with only organic reach, what would you make that people actually save or share?'},
+      {cat:'provocation', tags:['proof'], q:'Replace every claim with proof a user can feel in 10 seconds. What changes in your next asset?'} ,
+    ];
+
+    // ----- State -----
+    const el = id => document.getElementById(id);
+    const state = {
+      brand:'', audience:'',
+      favorites: JSON.parse(localStorage.getItem('insight-favs')||'[]'),
+      history:[],
+    };
+
+    // Populate category filter
+    const catSel = el('category');
+    categories.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; catSel.appendChild(o); });
+
+    // Helpers
+    const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
+    const sample = arr => arr[r(0,arr.length-1)];
+    const rot = () => `${r(-2,2)}deg`;
+    const templ = (t, ctx) => t.replace(/\{\{\s*brand\s*\}\}/gi, ctx.brand||'your brand')
+                               .replace(/\{\{\s*audience\s*\}\}/gi, ctx.audience||'your audience');
+
+    function filterDeck(){
+      const v = catSel.value;
+      return v==='all' ? deck : deck.filter(d=>d.cat===v);
+    }
+
+    function dealOne(){
+      const pool = filterDeck();
+      const card = sample(pool);
+      state.history.push(card);
+      renderCard(card);
+    }
+
+    function dealThree(){
+      const pool = [...filterDeck()];
+      const picks=[];
+      while (picks.length<3 && pool.length){
+        const idx=r(0,pool.length-1); picks.push(pool.splice(idx,1)[0]);
+      }
+      state.history.push(...picks);
+      renderHand(picks);
+    }
+
+    function renderCard(card){
+      el('hand').hidden=true; el('stack').hidden=false; el('stack').innerHTML='';
+      const cat = categories.find(c=>c.id===card.cat);
+      const div = document.createElement('article'); div.className='card'; div.style.setProperty('--rot', rot());
+      div.innerHTML = `
+        <div class="cat">${cat.name}</div>
+        <h3>${templ(card.q, {brand:state.brand, audience:state.audience})}</h3>
+        <div class="meta">Tags: ${card.tags.join(', ')}</div>
+        <div class="tags">${card.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      `;
+      el('stack').appendChild(div);
+    }
+
+    function renderHand(cards){
+      el('stack').hidden=true; el('hand').hidden=false; el('hand').innerHTML='';
+      cards.forEach(c=>{
+        const cat = categories.find(x=>x.id===c.cat);
+        const a = document.createElement('article'); a.className='card mini'; a.style.setProperty('--rot', rot());
+        a.innerHTML = `
+          <div class="cat">${cat.name}</div>
+          <h3 style="font-size:20px">${templ(c.q, {brand:state.brand, audience:state.audience})}</h3>
+          <div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        `;
+        el('hand').appendChild(a);
+      })
+    }
+
+    function shuffle(){
+      // Fisher–Yates for a fresh order (doesn’t mutate original constant array)
+      const pool = [...deck];
+      for (let i=pool.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+      // Draw first based on mode
+      catSel.value='all';
+      draw();
+    }
+
+    function draw(){
+      const mode = el('drawMode').value;
+      if (mode==='single') dealOne(); else dealThree();
+    }
+
+    // Favorites
+    function saveCurrent(){
+      const last = state.history[state.history.length-1];
+      if (!last){ toast('Draw a card first.'); return; }
+      const item = {
+        ts: Date.now(),
+        cat: last.cat,
+        q: templ(last.q, {brand:state.brand, audience:state.audience}),
+        brand: state.brand,
+        audience: state.audience,
+      };
+      state.favorites.push(item);
+      localStorage.setItem('insight-favs', JSON.stringify(state.favorites));
+      toast('Saved ⭐');
+    }
+
+    function openFavs(){
+      const list = el('favList'); list.innerHTML='';
+      if (!state.favorites.length){ list.innerHTML='<p style="color:var(--muted)">No favorites yet.</p>'; }
+      state.favorites
+        .sort((a,b)=>b.ts-a.ts)
+        .forEach((f,i)=>{
+          const wrap=document.createElement('div');
+          wrap.className='card'; wrap.style.setProperty('--rot', '0deg');
+          const cat = categories.find(c=>c.id===f.cat)?.name || f.cat;
+          const when = new Date(f.ts).toLocaleString();
+          wrap.innerHTML = `
+            <div class="cat">${cat}</div>
+            <h3 style="font-size:22px">${f.q}</h3>
+            <div class="meta">${when}</div>
+            <div class="tags">
+              ${f.brand?`<span class="tag">${f.brand}</span>`:''}
+              ${f.audience?`<span class="tag">${f.audience}</span>`:''}
+              <button class="btn ghost" data-idx="${i}">🗑 Delete</button>
+            </div>
+          `;
+          wrap.querySelector('button').addEventListener('click', (e)=>{
+            const idx=Number(e.currentTarget.dataset.idx);
+            state.favorites.splice(idx,1);
+            localStorage.setItem('insight-favs', JSON.stringify(state.favorites));
+            openFavs();
+          })
+          list.appendChild(wrap);
+        })
+      el('favs').showModal();
+    }
+
+    function exportFavs(){
+      if (!state.favorites.length){ toast('Nothing to export.'); return; }
+      const head = ['timestamp','category','prompt','brand','audience'];
+      const rows = state.favorites.map(f=>[
+        new Date(f.ts).toISOString(),
+        categories.find(c=>c.id===f.cat)?.name || f.cat,
+        '"'+(f.q||'').replaceAll('"','""')+'"',
+        '"'+(f.brand||'').replaceAll('"','""')+'"',
+        '"'+(f.audience||'').replaceAll('"','""')+'"',
+      ].join(','));
+      const csv = [head.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='insight-tarot-favorites.csv'; a.click();
+      setTimeout(()=> URL.revokeObjectURL(url), 2000);
+    }
+
+    // 7 Whys
+    const whyStarters = [
+      'What prevents this from being easy?',
+      'What happened just before?',
+      'What does success look like for them?',
+      'What are they trying to avoid?',
+      'Where is the friction we can remove?'
+    ];
+    function askWhy(){
+      const topic = el('whyTopic').value.trim(); if (!topic){ toast('Add an observation first.'); return; }
+      const list = el('whyList');
+      const n = list.children.length;
+      const q = document.createElement('div');
+      q.innerHTML = `<div class="card" style="--rot:0deg"><div class="cat">Why #${n+1}</div><h3 style="font-size:20px">${n===0?topic:'Because… '+whyStarters[r(0,whyStarters.length-1)]}</h3></div>`;
+      list.appendChild(q);
+    }
+    function resetWhy(){ el('whyTopic').value=''; el('whyList').innerHTML=''; }
+    function copyWhy(){
+      const items=[el('whyTopic').value.trim(), ...Array.from(el('whyList').children).map(c=>c.innerText.trim())].filter(Boolean);
+      navigator.clipboard.writeText(items.join('\n')).then(()=>toast('Copied')).catch(()=>toast('Copy failed'));
+    }
+
+    // Toast
+    let toastTimer;
+    function toast(msg){
+      let t=document.getElementById('toast');
+      if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+      t.textContent=msg;
+      Object.assign(t.style, {position:'fixed', left:'50%', bottom:'24px', transform:'translateX(-50%)', padding:'10px 14px', border:'1px solid rgba(212,175,55,.4)', background:'rgba(16,43,42,.95)', color:'var(--ink)', borderRadius:'12px', boxShadow:'0 10px 20px rgba(0,0,0,.35)', zIndex:999});
+      clearTimeout(toastTimer); toastTimer=setTimeout(()=> t.remove(), 1600);
+    }
+
+    // Events
+    el('btnDraw').addEventListener('click', draw);
+    el('btnAnother').addEventListener('click', draw);
+    el('btnShuffle').addEventListener('click', shuffle);
+    el('btnClear').addEventListener('click', ()=>{ el('stack').innerHTML=''; el('hand').innerHTML=''; })
+    el('btnSave').addEventListener('click', saveCurrent);
+    el('btnFavorites').addEventListener('click', openFavs);
+    el('btnExport').addEventListener('click', exportFavs);
+    el('btnWhy').addEventListener('click', ()=> el('whys').showModal());
+    el('btnAskWhy').addEventListener('click', askWhy);
+    el('btnResetWhy').addEventListener('click', resetWhy);
+    el('btnCopyWhy').addEventListener('click', copyWhy);
+
+    ['brand','audience'].forEach(k=>{
+      el(k).addEventListener('input', e=>{ state[k]=e.target.value; })
+    })
+
+    document.addEventListener('keydown', (e)=>{
+      if (e.key===' '){ e.preventDefault(); draw(); }
+      if (e.key.toLowerCase()==='s'){ shuffle(); }
+      if (e.key.toLowerCase()==='f'){ saveCurrent(); }
+      if (e.key==='7'){ el('whys').showModal(); }
+    })
+
+    // Init
+    el('year').textContent = new Date().getFullYear();
+    draw();
+  </script>
+</body>
+</html>
